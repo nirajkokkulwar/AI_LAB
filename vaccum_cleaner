@@ -1,0 +1,42 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int A, B, pos;
+
+    cout << "Enter status of Room A (1=Dirty, 0=Clean): ";
+    cin >> A;
+
+    cout << "Enter status of Room B (1=Dirty, 0=Clean): ";
+    cin >> B;
+
+    cout << "Enter starting room (1=A, 2=B): ";
+    cin >> pos;
+
+    if(pos == 1) {
+        if(A == 1) {
+            cout << "Room A: Clean\n";
+            A = 0;
+        }
+
+        if(B == 1) {
+            cout << "Move to Room B\n";
+            cout << "Room B: Clean\n";
+            B = 0;
+        }
+    }
+    else {
+        if(B == 1) {
+            cout << "Room B: Clean\n";
+            B = 0;
+        }
+
+        if(A == 1) {
+            cout << "Move to Room A\n";
+            cout << "Room A: Clean\n";
+            A = 0;
+        }
+    }
+
+    cout << "Both rooms are clean!\n";
+}
