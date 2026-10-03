@@ -1,0 +1,178 @@
+import heapq
+
+GOAL = (1, 2, 3,
+        4, 5, 6,
+        7, 8, 0)
+
+
+# Manhattan Distance
+def heuristic(state):
+    h = 0
+
+    for i, value in enumerate(state):
+        if value == 0:
+            continue
+
+        goal = value - 1
+
+        h += abs(i // 3 - goal // 3)
+        h += abs(i % 3 - goal % 3)
+
+    return h
+
+
+# Display puzzle
+def show(state, level, g):
+    h = heuristic(state)
+
+    print(f"\nLevel : {level}    g = {g}    h = {h}    f = {g + h}")
+    print("-------------")
+
+    for i in range(9):
+        if state[i] == 0:
+            print(" ", end=" ")
+        else:
+            print(state[i], end=" ")
+
+        if i % 3 == 2:
+            print()
+
+    print("-------------")
+
+
+def solve(start, limit):
+
+    # (f, g, level, state, path)
+    pq = []
+
+    heapq.heappush(
+        pq,
+        (heuristic(start), 0, 0, start, [start])
+    )
+
+    visited = set()
+    explored = 0
+
+    moves = [
+        (-1, 0),   # Up
+        (1, 0),    # Down
+        (0, -1),   # Left
+        (0, 1)     # Right
+    ]
+
+    while pq:
+
+        f, g, level, state, path = heapq.heappop(pq)
+
+        if state in visited:
+            continue
+
+        visited.add(state)
+        explored += 1
+
+        # Goal found
+        if state == GOAL:
+
+            print("\n========================================")
+            print("             SOLUTION FOUND")
+            print("========================================")
+
+            previous_level = -1
+
+            for i, s in enumerate(path):
+
+                current_level = i
+
+                if current_level != previous_level:
+                    print(f"\n>>> LEVEL {current_level} <<<")
+                    previous_level = current_level
+
+                show(s, current_level, current_level)
+
+            print("\n========================================")
+            print("             FINAL RESULT")
+            print("========================================")
+            print("Solution Depth :", len(path) - 1)
+            print("States Explored:", explored)
+            print("Depth Limit    :", limit)
+            print("Algorithm      : A* Search")
+            print("Heuristic      : Manhattan Distance")
+            print("========================================")
+
+            return
+
+        # Depth limit
+        if level >= limit:
+            continue
+
+        # Find blank
+        zero = state.index(0)
+        r, c = divmod(zero, 3)
+
+        # Generate children
+        for dr, dc in moves:
+
+            nr = r + dr
+            nc = c + dc
+
+            if 0 <= nr < 3 and 0 <= nc < 3:
+
+                new_pos = nr * 3 + nc
+
+                next_state = list(state)
+
+                next_state[zero], next_state[new_pos] = \
+                    next_state[new_pos], next_state[zero]
+
+                next_state = tuple(next_state)
+
+                if next_state not in visited:
+
+                    new_g = g + 1
+                    new_level = level + 1
+                    new_f = new_g + heuristic(next_state)
+
+                    heapq.heappush(
+                        pq,
+                        (
+                            new_f,
+                            new_g,
+                            new_level,
+                            next_state,
+                            path + [next_state]
+                        )
+                    )
+
+    print("\n========================================")
+    print("          NO SOLUTION FOUND")
+    print("========================================")
+    print("Depth Limit    :", limit)
+    print("States Explored:", explored)
+    print("Try increasing the depth limit.")
+    print("========================================")
+
+
+# ==========================================
+# MAIN PROGRAM
+# ==========================================
+
+print("========================================")
+print("          8 - PUZZLE SOLVER")
+print("          A* SEARCH ALGORITHM")
+print("========================================")
+
+print("\nEnter initial puzzle")
+print("(Use 0 for blank space)")
+
+start = tuple(map(int, input("> ").split()))
+
+limit = int(input("\nEnter maximum depth/level limit: "))
+
+print("\n========================================")
+print("             SEARCH STARTED")
+print("========================================")
+
+print("Initial State:")
+show(start, 0, 0)
+
+solve(start, limit)
